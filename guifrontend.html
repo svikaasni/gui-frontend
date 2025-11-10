@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Resource Lending Logs</title>
+<style>
+    * {
+        box-sizing: border-box;
+        font-family: "Poppins", sans-serif;
+    }
+    body {
+        background: #f3f6fb;
+        margin: 0;
+        padding: 0;
+    }
+    header {
+        background: #2c3e50;
+        color: white;
+        text-align: center;
+        padding: 15px 0;
+        font-size: 1.5em;
+        letter-spacing: 1px;
+    }
+    .container {
+        max-width: 900px;
+        margin: 30px auto;
+        background: white;
+        padding: 25px;
+        border-radius: 12px;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    }
+    .form-group {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 15px;
+        margin-bottom: 15px;
+    }
+    label {
+        font-weight: 600;
+    }
+    input {
+        width: 100%;
+        padding: 8px;
+        border-radius: 6px;
+        border: 1px solid #ccc;
+    }
+    .buttons {
+        text-align: center;
+        margin-bottom: 20px;
+    }
+    button {
+        background: #3498db;
+        border: none;
+        color: white;
+        padding: 10px 18px;
+        border-radius: 8px;
+        margin: 5px;
+        cursor: pointer;
+        transition: 0.3s;
+        font-weight: 600;
+    }
+    button:hover {
+        background: #217dbb;
+    }
+    table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+    th, td {
+        border: 1px solid #ddd;
+        padding: 10px;
+        text-align: center;
+    }
+    th {
+        background: #3498db;
+        color: white;
+    }
+    tr:nth-child(even) {
+        background: #f2f2f2;
+    }
+    .delete-btn {
+        background: #e74c3c;
+    }
+    .delete-btn:hover {
+        background: #c0392b;
+    }
+</style>
+</head>
+<body>
+
+<header>📘 Resource Lending Logs</header>
+
+<div class="container">
+    <div class="form-group">
+        <div>
+            <label>Resource Name:</label>
+            <input type="text" id="resourceName" placeholder="Enter resource name">
+        </div>
+        <div>
+            <label>Borrower Name:</label>
+            <input type="text" id="borrowerName" placeholder="Enter borrower name">
+        </div>
+        <div>
+            <label>Date Lent:</label>
+            <input type="date" id="dateLent">
+        </div>
+        <div>
+            <label>Due Date:</label>
+            <input type="date" id="dueDate">
+        </div>
+    </div>
+
+    <div class="buttons">
+        <button onclick="addLog()">Add Log</button>
+        <button onclick="saveLogs()">Save Logs</button>
+        <button onclick="loadLogs()">Load Logs</button>
+        <button onclick="clearLogs()">Clear All</button>
+    </div>
+
+    <table id="logsTable">
+        <thead>
+            <tr>
+                <th>Resource</th>
+                <th>Borrower</th>
+                <th>Date Lent</th>
+                <th>Due Date</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody></tbody>
+    </table>
+</div>
+
+<script>
+    // Store logs in localStorage (for demo)
+    let logs = JSON.parse(localStorage.getItem("lendingLogs")) || [];
+
+    function renderTable() {
+        const tbody = document.querySelector("#logsTable tbody");
+        tbody.innerHTML = "";
+        logs.forEach((log, index) => {
+            const row = `<tr>
+                <td>${log.resource}</td>
+                <td>${log.borrower}</td>
+                <td>${log.dateLent}</td>
+                <td>${log.dueDate}</td>
+                <td><button class="delete-btn" onclick="deleteLog(${index})">Delete</button></td>
+            </tr>`;
+            tbody.insertAdjacentHTML("beforeend", row);
+        });
+    }
+
+    function addLog() {
+        const resource = document.getElementById("resourceName").value.trim();
+        const borrower = document.getElementById("borrowerName").value.trim();
+        const dateLent = document.getElementById("dateLent").value;
+        const dueDate = document.getElementById("dueDate").value;
+
+        if (!resource || !borrower || !dateLent || !dueDate) {
+            alert("Please fill all fields!");
+            return;
+        }
+
+        logs.push({ resource, borrower, dateLent, dueDate });
+        renderTable();
+        clearFields();
+    }
+
+    function deleteLog(index) {
+        logs.splice(index, 1);
+        renderTable();
+    }
+
+    function saveLogs() {
+        localStorage.setItem("lendingLogs", JSON.stringify(logs));
+        alert("Logs saved successfully!");
+    }
+
+    function loadLogs() {
+        logs = JSON.parse(localStorage.getItem("lendingLogs")) || [];
+        renderTable();
+    }
+
+    function clearLogs() {
+        if (confirm("Are you sure you want to delete all logs?")) {
+            logs = [];
+            localStorage.removeItem("lendingLogs");
+            renderTable();
+        }
+    }
+
+    function clearFields() {
+        document.getElementById("resourceName").value = "";
+        document.getElementById("borrowerName").value = "";
+        document.getElementById("dateLent").value = "";
+        document.getElementById("dueDate").value = "";
+    }
+
+    // Load existing logs on page load
+    window.onload = loadLogs;
+</script>
+
+</body>
+</html>
